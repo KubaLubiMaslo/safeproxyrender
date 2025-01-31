@@ -1,15 +1,26 @@
 const express = require("express");
-const path = require("path");
 const cors = require("cors");
+const axios = require("axios");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(__dirname + "/public/index.html");
+});
+
+app.get("/proxy", async (req, res) => {
+  const url = req.query.url;
+  if (!url) return res.status(400).send("Missing URL parameter");
+
+  try {
+    const response = await axios.get(url);
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching the requested page.");
+  }
 });
 
 app.listen(PORT, () => {
